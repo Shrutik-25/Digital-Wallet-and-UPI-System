@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UPI Wallet</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-scene" id="authScene">
+    <span class="ambient-bubble bubble-a" aria-hidden="true"></span>
+    <span class="ambient-bubble bubble-b" aria-hidden="true"></span>
+    <span class="ambient-bubble bubble-c" aria-hidden="true"></span>
+
+    <div class="auth-layout">
+        <section class="auth-showcase glass-panel">
+            <div class="brand-mark">
+                <span class="brand-icon">◈</span>
+                <div>
+                    <h1>UPI<span class="blue">Wallet</span></h1>
+                </div>
+            </div>
+
+            <div class="showcase-copy">
+                <h2>Smart UPI access with a premium wallet experience.</h2>
+                <p>Secure payments, elegant controls, and a modern interface built to feel like a real fintech product.</p>
+            </div>
+
+            <div class="showcase-grid">
+                <div class="showcase-card">
+                    <span>Instant</span>
+                    <strong>UPI Payments</strong>
+                </div>
+                <div class="showcase-card">
+                    <span>Protected</span>
+                    <strong>PIN-secured flows</strong>
+                </div>
+                <div class="showcase-card">
+                    <span>Clear</span>
+                    <strong>Live wallet overview</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="auth-panel glass-panel">
+            <div class="panel-header">
+                <div class="logo">
+                    <span class="logo-mark">◉</span>
+                    <span>UPI<span class="blue">Wallet</span></span>
+                </div>
+
+                <div class="tabs">
+                    <button id="loginTab" class="active" onclick="showLogin()">Login</button>
+                    <button id="registerTab" onclick="showRegister()">Register</button>
+                </div>
+            </div>
+
+            <div id="loginForm" class="form-shell">
+                <div class="form-heading">
+                    <h3>Welcome back</h3>
+                    <p>Sign in to access your wallet</p>
+                </div>
+
+                <label>UPI ID</label>
+                <input id="loginUsername" placeholder="e.g. shuvro@upi">
+
+                <label>UPI PIN</label>
+                <input id="loginPassword" type="password" placeholder="4 digit PIN">
+
+                <button class="main-btn" onclick="login()">Login</button>
+
+                <div class="demo">
+                    <b>Demo accounts</b>
+                    <span>prachi@upi / 0094</span>
+                    <span>shuvro@upi / 0168</span>
+                    <span>shruti@upi / 0101</span>
+                </div>
+            </div>
+
+            <div id="registerForm" class="form-shell" style="display:none;">
+                <div class="form-heading">
+                    <h3>Create account</h3>
+                    <p>Open your wallet in a few quick steps</p>
+                </div>
+
+                <div class="row">
+                    <div class="field">
+                        <label>FULL NAME</label>
+                        <input id="name" placeholder="Prachi Chandak">
+                        <small class="error" id="nameError"></small>
+                    </div>
+
+                    <div class="field">
+                        <label>UPI HANDLE</label>
+                        <input id="username" placeholder="prachi">
+                        <small class="error" id="upiError"></small>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>EMAIL</label>
+                    <input id="email" type="email" placeholder="prachi@gmail.com">
+                    <small class="error" id="emailError"></small>
+                </div>
+
+                <div class="field">
+                    <label>PHONE</label>
+                    <input id="phone" type="tel" placeholder="10-digit number" maxlength="10">
+                    <small class="error" id="phoneError"></small>
+                </div>
+
+                <div class="field">
+                    <label>INITIAL BALANCE</label>
+                    <input id="initialBalance" type="number" placeholder="Enter amount" required>
+                    <small class="error" id="balanceError"></small>
+                </div>
+
+                <div class="row">
+                    <div class="field">
+                        <label>SET PIN</label>
+                        <input id="password" type="password" placeholder="4-digit PIN" maxlength="4">
+                        <small class="error" id="pinError"></small>
+                    </div>
+
+                    <div class="field">
+                        <label>CONFIRM PIN</label>
+                        <input id="confirmPassword" type="password" placeholder="Confirm PIN" maxlength="4">
+                        <small class="error" id="confirmError"></small>
+                    </div>
+                </div>
+
+                <button class="main-btn" id="signupBtn" onclick="signup()" disabled>Create Account</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const scene = document.getElementById("authScene");
+    const bubbles = Array.from(document.querySelectorAll(".ambient-bubble"));
+
+    if (!scene || bubbles.length === 0) {
+        return;
+    }
+
+    scene.addEventListener("mousemove", (event) => {
+        const rect = scene.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - 0.5;
+        const y = (event.clientY - rect.top) / rect.height - 0.5;
+
+        bubbles.forEach((bubble, index) => {
+            const depth = (index + 1) * 18;
+            bubble.style.transform = `translate3d(${x * depth}px, ${y * depth}px, 0)`;
+        });
+    });
+
+    scene.addEventListener("mouseleave", () => {
+        bubbles.forEach((bubble) => {
+            bubble.style.transform = "translate3d(0, 0, 0)";
+        });
+    });
+});
+</script>
+</body>
+</html>

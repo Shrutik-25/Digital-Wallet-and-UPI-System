@@ -1,0 +1,20 @@
+
+# Sensitive user data
+backend/users
+backend/users.json
+backend/users_backup.json
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Compiled files
+backend/server.exe
+backend/server_test.exe
+backend/server
+
+# Unnecessary files
+.DS_Store
+node_modules/
+

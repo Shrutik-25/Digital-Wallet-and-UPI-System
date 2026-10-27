@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Money</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="app">
+    <div class="sidebar">
+        <div class="logo">
+            <span class="logo-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 8.5C4 6.567 5.567 5 7.5 5h9C18.433 5 20 6.567 20 8.5v7c0 1.933-1.567 3.5-3.5 3.5h-9C5.567 19 4 17.433 4 15.5v-7Z" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="M4 9h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <circle cx="16.5" cy="14" r="1.3" fill="currentColor"/>
+                </svg>
+            </span>
+            <div class="logo-copy">
+                <strong>UPI<span class="blue">Wallet</span></strong>
+                <small>Premium Digital Wallet</small>
+            </div>
+        </div>
+
+        <ul>
+            <li onclick="goDashboard()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1v-8.5Z" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+                <span>Dashboard</span>
+            </li>
+            <li class="active">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="m5 12 13-7-3 14-4-5-6-2Z" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+                <span>Send</span>
+            </li>
+            <li onclick="goRequest()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5v14M5 12h14" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Request</span>
+            </li>
+            <li onclick="goHistory()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 8v4l3 3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 12a8 8 0 1 1-2.343-5.657" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>History</span>
+            </li>
+            <li onclick="goProfile()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke-width="1.8"/>
+                    <path d="M5 20a7 7 0 0 1 14 0" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Profile</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="topbar-copy">
+                <p class="eyebrow">Payments</p>
+                <h1>Send Money</h1>
+                <p>Transfer instantly to any UPI ID</p>
+            </div>
+
+            <div class="user">
+                <div class="avatar">U</div>
+                <div class="user-meta">
+                    <div id="usernameText"></div>
+                    <small id="upiText"></small>
+                </div>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="send-container">
+            <div class="send-box page-feature-card">
+                <span class="floating-bubble bubble-lg" aria-hidden="true"></span>
+                <span class="floating-bubble bubble-sm" aria-hidden="true"></span>
+
+                <p class="mini-label">Transfer</p>
+                <h3>Payment Details</h3>
+
+                <label>TO UPI ID</label>
+                <input id="receiver" placeholder="e.g. shruti@upi">
+
+                <label>AMOUNT (₹)</label>
+                <input id="amount" type="number" placeholder="Enter amount">
+
+                <label>REMARK (OPTIONAL)</label>
+                <input id="remark" placeholder="e.g. Dinner split">
+
+                <button class="main-btn" onclick="sendMoney()">Proceed to Pay</button>
+            </div>
+
+            <div class="users-box side-info-card">
+                <div class="side-card-head">
+                    <div>
+                        <p class="mini-label">Contacts</p>
+                        <h3>Recent Contacts</h3>
+                    </div>
+                </div>
+
+                <div id="usersList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="pinPopup" class="popup">
+    <div class="popup-content">
+        <h3>Enter UPI PIN</h3>
+        <input id="upiPin" type="password" maxlength="6" placeholder="••••">
+        <div class="popup-actions">
+            <button onclick="closePopup()">Cancel</button>
+            <button onclick="confirmSendPayment()">Pay</button>
+        </div>
+    </div>
+</div>
+
+<div id="loadingScreen" class="popup">
+    <div class="popup-content">
+        <h3>Processing Payment...</h3>
+        <div class="loader"></div>
+    </div>
+</div>
+
+<div id="successScreen" class="popup">
+    <div class="popup-content success-box">
+        <div class="tick">✔</div>
+        <h3>Payment Successful</h3>
+        <p id="successText"></p>
+        <button onclick="goDashboard()">Done</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Request Money</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="app">
+
+    <div class="sidebar">
+ <div class="logo">
+            <span class="logo-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 8.5C4 6.567 5.567 5 7.5 5h9C18.433 5 20 6.567 20 8.5v7c0 1.933-1.567 3.5-3.5 3.5h-9C5.567 19 4 17.433 4 15.5v-7Z" stroke="currentColor" stroke-width="1.7"/>
+                    <path d="M4 9h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <circle cx="16.5" cy="14" r="1.3" fill="currentColor"/>
+                </svg>
+            </span>
+            <div class="logo-copy">
+                <strong>UPI<span class="blue">Wallet</span></strong>
+                <small>Premium Digital Wallet</small>
+            </div>
+        </div>
+        
+        <ul>
+            <li onclick="goDashboard()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1v-8.5Z" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+                <span>Dashboard</span>
+            </li>
+            <li onclick="goSend()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="m5 12 13-7-3 14-4-5-6-2Z" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+                <span>Send</span>
+            </li>
+            <li class="active">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5v14M5 12h14" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Request</span>
+            </li>
+            <li onclick="goHistory()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 8v4l3 3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 12a8 8 0 1 1-2.343-5.657" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>History</span>
+            </li>
+            <li onclick="goProfile()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke-width="1.8"/>
+                    <path d="M5 20a7 7 0 0 1 14 0" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Profile</span>
+            </li>
+        </ul>
+
+    </div>
+
+    <div class="main">
+
+        <div class="topbar">
+            <div class="topbar-copy">
+                <p class="eyebrow">Collections</p>
+                <h1>Request Money</h1>
+                <p>Raise a payment request and manage incoming asks</p>
+            </div>
+            <div class="user">
+                <div class="avatar">U</div>
+                <div class="user-meta">
+                    <div id="usernameText"></div>
+                    <small id="upiText"></small>
+                </div>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="send-container">
+
+            <div class="send-box page-feature-card">
+                <span class="floating-bubble bubble-lg" aria-hidden="true"></span>
+                <span class="floating-bubble bubble-sm" aria-hidden="true"></span>
+                <p class="mini-label">Request</p>
+                <h3>Request Details</h3>
+
+                <label>FROM</label>
+                <input id="payer" placeholder="e.g. shruti@upi">
+
+                <label>AMOUNT</label>
+                <input id="amount" type="number" placeholder="Enter amount">
+
+                <label>REMARK</label>
+                <input id="remark" placeholder="e.g. Shared bill">
+
+                <button class="main-btn" onclick="requestMoney()">Send Request</button>
+            </div>
+
+            <div class="users-box side-info-card request-panel">
+                <div class="side-card-head">
+                    <div>
+                        <p class="mini-label">Requests</p>
+                        <h3>Incoming Requests</h3>
+                    </div>
+                </div>
+                <div id="requestList"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="successScreen" class="popup" style="display:none;">
+    <div class="popup-content success-box">
+        <div class="tick">✔</div>
+        <h3>Payment Successful</h3>
+        <p>Money sent successfully.</p>
+        <button onclick="closeSuccess()">Done</button>
+    </div>
+</div>
+
+<div id="invalidPinScreen" class="popup" style="display:none;">
+    <div class="popup-content success-box">
+        <h3>Invalid PIN</h3>
+        <p id="invalidPinText">Please enter the correct UPI PIN.</p>
+        <button onclick="closeInvalidPin()">OK</button>
+    </div>
+</div>
+
+<div id="requestPinPopup" class="popup" style="display:none;">
+    <div class="popup-content">
+        <h3>Enter UPI PIN</h3>
+        <input id="upiPin" type="password">
+        <div class="popup-actions popup-actions-single">
+            <button onclick="confirmPayment()">Pay</button>
+        </div>
+    </div>
+</div>
+
+<div id="loadingScreen" class="popup" style="display:none;">
+    <div class="popup-content">
+        <h3>Processing...</h3>
+    </div>
+</div>
+
+<script>
+
+const user = localStorage.getItem("user");
+const API_BASE = "http://localhost:8080";
+
+async function refreshStoredBalance() {
+    const password = localStorage.getItem("password");
+
+    if (!user || !password) {
+        return null;
+    }
+
+    const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ username: user, password })
+    });
+
+    const data = await res.json();
+
+    if (data.status === "success") {
+        localStorage.setItem("balance", data.balance);
+        return data.balance;
+    }
+
+    return null;
+}
+
+function hiddenRequestsStorageKey() {
+    return `hiddenRequests:${user || "guest"}`;
+}
+
+function clearHiddenRequests() {
+    localStorage.removeItem(hiddenRequestsStorageKey());
+}
+
+function showDailyLimitAlert(data, attemptedAmount) {
+    const dailySpent = Number(data?.daily_spent || 0);
+    const dailyLimit = Number(data?.daily_limit || 10000);
+    const remaining = Math.max(dailyLimit - dailySpent, 0);
+
+    if (remaining > 0) {
+        alert(`Daily limit of Rs.${dailyLimit} reached. You can spend only Rs.${remaining} more today, so this Rs.${attemptedAmount} payment is blocked.`);
+        return;
+    }
+
+    alert(`Daily limit of Rs.${dailyLimit} reached. You cannot make more outgoing payments today.`);
+}
+
+window.onload = function () {
+    if (!user) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    document.getElementById("usernameText").innerText = user.split("@")[0];
+    document.getElementById("upiText").innerText = user;
+    clearHiddenRequests();
+    loadRequests();
+};
+
+function requestMoney() {
+
+    let payer = document.getElementById("payer").value.trim();
+    let amount = parseInt(document.getElementById("amount").value);
+
+    if (!payer || isNaN(amount) || amount <= 0) {
+        alert("Enter valid details");
+        return;
+    }
+
+    if (!payer.includes("@upi")) {
+        payer += "@upi";
+    }
+
+    if (payer === user) {
+        alert("You cannot request money from yourself");
+        return;
+    }
+
+    fetch(`${API_BASE}/request`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ sender: user, receiver: payer, amount })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("Request sent");
+            loadRequests();
+            return;
+        }
+
+        if (data.status === "invalid_user") {
+            alert("UPI user not found");
+            return;
+        }
+
+        if (data.status === "self_request") {
+            alert("You cannot request money from yourself");
+            return;
+        }
+
+        alert("Could not send request");
+    })
+    .catch(() => {
+        alert("Could not send request");
+    });
+}
+
+function fetchRequests() {
+    return fetch(`${API_BASE}/requests/${user}`).then(res => res.json());
+}
+
+async function parseJsonResponse(res) {
+    const text = await res.text();
+
+    if (!text) {
+        return { status: "empty_response", httpStatus: res.status };
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        return {
+            status: "invalid_response",
+            httpStatus: res.status,
+            raw: text
+        };
+    }
+}
+
+function loadRequests() {
+
+    fetchRequests()
+    .then(data => {
+
+        const container = document.getElementById("requestList");
+        container.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
+            container.innerHTML = "<p>No incoming requests yet.</p>";
+            return;
+        }
+
+        data.forEach(r => {
+            const card = document.createElement("div");
+            card.className = "user-card";
+
+            card.innerHTML = `
+                <b>${r.from}</b><br>
+                ₹${r.amount}<br>
+                <button class="payBtn">Pay</button>
+                <button class="rejectBtn">Reject</button>
+            `;
+
+            card.querySelector(".payBtn").onclick = function () {
+                selectedSender = r.from;
+                selectedAmount = r.amount;
+                selectedCard = card;
+
+                document.getElementById("upiPin").value = "";
+                document.getElementById("requestPinPopup").style.display = "flex";
+            };
+
+            card.querySelector(".rejectBtn").onclick = function () {
+                fetch(`${API_BASE}/reject_request`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ user, from: r.from, amount: r.amount })
+                })
+                .then(() => {
+                    loadRequests();
+                })
+                .catch(() => {
+                    loadRequests();
+                });
+            };
+
+            container.appendChild(card);
+        });
+    })
+    .catch(() => {
+        document.getElementById("requestList").innerHTML = "<p>Could not load requests.</p>";
+    });
+}
+
+let selectedSender = "";
+let selectedAmount = 0;
+let selectedCard = null;
+
+function payRequest(from, amount) {
+    selectedSender = from;
+    selectedAmount = amount;
+
+    document.getElementById("upiPin").value = "";
+    document.getElementById("requestPinPopup").style.display = "flex";
+}
+
+async function confirmPayment() {
+
+    const pin = document.getElementById("upiPin").value.trim();
+
+    if (!pin) {
+        showInvalidPinPopup("Please enter your UPI PIN.");
+        return;
+    }
+
+    document.getElementById("requestPinPopup").style.display = "none";
+    document.getElementById("loadingScreen").style.display = "flex";
+
+    try {
+        const res = await fetch(`${API_BASE}/accept_request`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                sender: user,
+                receiver: selectedSender,
+                amount: selectedAmount,
+                pin
+            })
+        });
+
+        const data = await parseJsonResponse(res);
+        document.getElementById("loadingScreen").style.display = "none";
+
+        if (data.status === "invalid_pin") {
+            showInvalidPinPopup("Please enter the correct UPI PIN.");
+            return;
+        }
+
+        if (data.status === "low_balance") {
+            alert("Not enough balance to pay.");
+            return;
+        }
+
+        if (data.status === "daily_limit_exceeded") {
+            showDailyLimitAlert(data, selectedAmount);
+            return;
+        }
+
+        if (data.status === "request_not_found") {
+            loadRequests();
+            alert("This request was already handled.");
+            return;
+        }
+
+        if (data.status === "invalid_user") {
+            loadRequests();
+            alert("The request user no longer exists.");
+            return;
+        }
+
+        if (data.status === "empty_response") {
+            alert("Request payment is not available in the running backend. Restart the backend server and try again.");
+            return;
+        }
+
+        if (data.status === "invalid_response" || data.status === "error") {
+            alert("Backend returned an invalid response while processing the payment.");
+            return;
+        }
+
+        if (data.status === "success") {
+            if (typeof data.balance === "number") {
+                localStorage.setItem("balance", data.balance);
+            } else {
+                await refreshStoredBalance();
+            }
+
+            selectedCard = null;
+            loadRequests();
+
+            showSuccessPopup();
+            return;
+        }
+
+        alert("Payment could not be completed.");
+    } catch (error) {
+        document.getElementById("loadingScreen").style.display = "none";
+        alert("Could not process payment. Please try again.");
+    }
+}
+
+function rejectRequest(from, amount) {
+
+    fetch(`${API_BASE}/reject_request`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ user, from, amount })
+    })
+    .then(() => {
+        loadRequests();
+    })
+    .catch(() => {
+        loadRequests();
+    });
+}
+
+function showSuccessPopup() {
+    document.getElementById("successScreen").style.display = "flex";
+}
+
+function closeSuccess() {
+    document.getElementById("successScreen").style.display = "none";
+}
+
+function showInvalidPinPopup(message) {
+    document.getElementById("invalidPinText").innerText = message;
+    document.getElementById("invalidPinScreen").style.display = "flex";
+}
+
+function closeInvalidPin() {
+    document.getElementById("invalidPinScreen").style.display = "none";
+}
+
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>
